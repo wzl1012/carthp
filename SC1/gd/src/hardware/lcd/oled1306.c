@@ -1,8 +1,5 @@
 #include "headfile.h"
 #define  OLED_CMD  0x00
-//#define  DIS_V    0x00000002
-uint8_t  dis_v[16]="K3_Genie V1.0.0";
-//uint32_t const vdata __attribute__ ((section(".ARM.__at_0x08016400")))=DIS_V;
 extern uint8_t temp[4];
 static void OLED_1306_iic_write(uint8_t data,uint8_t wtype)
 {
@@ -51,7 +48,7 @@ void oled1306_init(void)
 	
 	OLED_1306_iic_write(0xaf,OLED_CMD);
 	OLED_Clear();
-	OLED_ShowString(0,0,dis_v,16,16);
+	OLED_ShowString(0,0,DIS_V,16,16);
 	OLED_ShowString(0,2,"SYZ",16,3);
 	oled_print_hex(24,2,16,temp,4);
 	delay_us(1500000);

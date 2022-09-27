@@ -3,7 +3,6 @@
 extern volatile uint8_t pswlckflg;
 extern volatile uint8_t  cmdflg;
 extern volatile uint32_t t3;
-extern uint8_t  dis_v[16];
 extern const unsigned char BAT_EMPT_ICON_BMP[];
 extern const unsigned char BT_ICON_BMP[];
 extern volatile uint8_t exti_keystartflg;
@@ -89,7 +88,7 @@ void sleep_mag(void)
 				 gpio_init(GPIOA,GPIO_MODE_AF_PP, GPIO_OSPEED_50MHZ, GPIO_PIN_2);
 				 if(exti_keystartflg){
 					 OLED_Clear();
-				   OLED_ShowString(0,0,dis_v,16,16);
+				   OLED_ShowString(0,0,DIS_V,16,16);
 					 exti_keystartflg=0;
 					 //delay_us(100000);
 				 }
