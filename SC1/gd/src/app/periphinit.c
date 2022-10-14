@@ -29,7 +29,6 @@ static void user_gpio_init(void)
 	gpio_bit_reset(GPIOC, GPIO_PIN_9);
 	//power control pin PB14,PB12 //usb chek
 	gpio_init(GPIOB,GPIO_MODE_IPU, GPIO_OSPEED_50MHZ, GPIO_PIN_14|GPIO_PIN_9);//PB.14  key_pws //PB.9 usbchek in
-//	gpio_init(GPIOB,GPIO_MODE_IPD,GPIO_OSPEED_50MHZ,FC_CODE_IN);//FC_CODE_IN,PB1 
 	gpio_init(GPIOB,GPIO_MODE_OUT_PP, GPIO_OSPEED_50MHZ, GPIO_PIN_12);//PB.12  pws
 	gpio_init(GPIOB, GPIO_MODE_OUT_PP,GPIO_OSPEED_50MHZ,ICID_5V_CTRL_PB13| RFCHK_5V_CTRL_PB15);
 	//usb chek
@@ -57,6 +56,136 @@ static void user_gpio_init(void)
  // gpio_bit_reset(GPIOC,GPIO_PIN_3);	//reset bt
 	//91&3705rayctrlio
 }
+#define L_BDRNUM 8
+
+bool BT_u2sndr_cmd(char*cmd,char* rspd)
+{	
+	uint8_t cmdlen=0,rev_datalen=0;
+	uint16_t  timeout=50000;
+	char  uartrevbuf[30]={0};
+	 cmdlen=strlen(cmd)/*+strlen(data)*/;
+	  /*if(strlen(data)==0){
+		 rev_datalen=cmdlen+2;
+	 }else{
+		 rev_datalen=cmdlen;
+	 }*/
+	//if(usart_flag_get(USART1,USART_FLAG_RBNE)){
+		 usart_data_receive(USART1);
+	//	usart_flag_clear(USART1,USART_FLAG_RBNE);
+	//}
+	rev_datalen=strlen(rspd);
+	fputc_u2(cmd,cmdlen);
+	for(uint8_t i=0;i<rev_datalen;i++){
+			 while(usart_flag_get(USART1,USART_FLAG_RBNE)==RESET&&timeout){
+				    delay_us(10);
+				 	  timeout--;
+				}
+			if(timeout==0)
+				break;
+      else{  
+				      // usart_flag_clear(USART1,USART_FLAG_RBNE);
+					     uartrevbuf[i]=(uint8_t)usart_data_receive(USART1);
+				       timeout=50000;				        
+					    }
+	}	
+//debug_printf("\r\nrevch=%s",uartrevbuf);
+     if(strcmp(uartrevbuf,rspd/*"OK+S_BAUD=7"*/)==0){		 
+					  return TRUE;
+	    }/*else if(strcmp(uartrevbuf,"OK+S_NAME=syz01")==0){
+				    return TRUE;
+			}*/else{
+				  return FALSE;
+			}
+}
+char sendbuf[30];
+char ackbuf[30];
+/*
+static bool asc_to_dec(char inpasc,uint8_t*dec)
+{
+	if((inpasc>='0')&&(inpasc<='9')){
+		 *dec=inpasc-'0';
+		 return TRUE;
+	}else{
+		return FALSE;
+	}
+}*/
+
+static bool BT_ubdrate(void)
+{
+	sprintf((char *)sendbuf, "AT+BAUD?\r\n");
+	sprintf((char *)ackbuf, "OK+G_BAUD=7\r\n");
+		if(BT_u2sndr_cmd(sendbuf,ackbuf)){
+		 return TRUE;
+	}else{
+		 return FALSE;
+	}
+}
+static uint8_t BT_UARTIF_init(void)
+{
+	BT_MOD_reset();
+	if(!BT_ubdrate()){
+		/*uint8_t dec=0;
+		if(!asc_to_dec(ackbuf[0],&dec)){
+			return FALSE;
+		}*/
+	uint8_t  bdratenum=0;
+	uint32_t bdratelst[L_BDRNUM]={
+	  2400,4800,9600,19200,38400,57600,115200,128000
+};
+	while(bdratenum<L_BDRNUM){
+		      usart_disable(USART1);
+				 	usart_baudrate_set(USART1,bdratelst[bdratenum]);
+          usart_enable(USART1);		
+		      sprintf((char *)sendbuf, "AT+BAUD=7\r\n");
+		      sprintf((char *)ackbuf, "OK+S_BAUD=7\r\n");
+          if(BT_u2sndr_cmd(sendbuf,ackbuf)){
+						if(bdratelst[bdratenum]!=115200)
+						 usart_baudrate_set(USART1,115200);	
+						 BT_MOD_reset();					
+					   return TRUE;
+				  }else{
+					++bdratenum;
+				 }
+		  }
+     return FALSE;	
+	 }
+	return TRUE;
+}	
+			 
+void BT_MOD_reset(void)
+{
+	 gpio_bit_reset(GPIOC,GPIO_PIN_3);
+	 delay_us(100000);
+	 gpio_bit_set(GPIOC,GPIO_PIN_3);
+	 delay_us(2000000);
+}
+static bool BT_devname(void)
+{
+	sprintf((char *)sendbuf, "AT+NAME?\r\n");
+	sprintf((char *)ackbuf, "OK+G_NAME=K3-Genie\r\n"/*,temp[0],temp[1],temp[2]*/);
+		if(BT_u2sndr_cmd(sendbuf,ackbuf)){
+		 return TRUE;
+	}else{
+		 return FALSE;
+	}
+}
+
+static bool set_BTname(void)
+{
+	//BT_chkbtv( );
+	if(!BT_devname()){
+	sprintf((char *)sendbuf, "AT+NAME=K3-Genie\r\n"/*,temp[0],temp[1],temp[2]*/);
+	sprintf((char *)ackbuf, "OK+S_NAME=K3-Genie\r\n"/*,temp[0],temp[1],temp[2]*/);
+	if(BT_u2sndr_cmd(sendbuf,ackbuf)){
+		BT_MOD_reset( );
+		 return TRUE;
+	}else{
+		 return FALSE;
+	}
+ }else{
+	 return TRUE;
+ }
+}
 static void Get_ChipID(void)
 {
     uint32_t temp0,temp1,temp2;
@@ -76,6 +205,12 @@ static void pmu_init(void)
 }
 void periph_init(void)
 {
+		uint32_t tmpadr=0;
+	if((tmpadr=*(uint32_t*)(FWCURRNFLSADR))!=FLS_SEC1_ADR&&tmpadr!=FLS_SEC2_ADR)
+	{
+		 while(1);
+	}
+	nvic_vector_table_set(FLSBASE, tmpadr&0xFFFFF);
 	nvic_priority_group_set(NVIC_PRIGROUP_PRE4_SUB0);
 	delay_init();
 	Get_ChipID( );

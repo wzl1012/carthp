@@ -17,12 +17,15 @@ extern  uint16_t adc_value[1];
 #define  RFCHK_5V_ON            gpio_bit_set(GPIOB,RFCHK_5V_CTRL_PB15)
 #define  ICD_5V_CTRL_PIN_LEVEL   gpio_output_bit_get(GPIOB,ICID_5V_CTRL_PB13)
 #define  RFCHK_5V_CTRL_PIN_LEVEL   gpio_output_bit_get(GPIOB,RFCHK_5V_CTRL_PB15)
-
+extern char sendbuf[30];
+extern char ackbuf[30];
 extern uint8_t volatile slpflg;
 void power_mag(void);
 void sleep_mag(void);
-extern void fls_infs(void);
-extern bool rf_chk(uint16_t* tmpint,uint16_t*tmpxs,uint8_t* fskflg);
+void fls_infs(void);
+void SLEEP_task(void *pvParameters);
+void POWER_M_task(void *pvParameters);
+
 #endif
 
 

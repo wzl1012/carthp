@@ -17,14 +17,9 @@ void Key_EXTI_Init(void)
   gpio_exti_source_select(GPIO_PORT_SOURCE_GPIOA, GPIO_PIN_SOURCE_15);
 	gpio_exti_source_select(GPIO_PORT_SOURCE_GPIOA, GPIO_PIN_SOURCE_0);
 	gpio_exti_source_select(GPIO_PORT_SOURCE_GPIOB, GPIO_PIN_SOURCE_14);
- // gpio_exti_source_select(GPIO_PORT_SOURCE_GPIOB, GPIO_PIN_SOURCE_14);
-    
-	//中断线5-PC5
 	  nvic_irq_enable(EXTI0_IRQn,6U, 2U);
     nvic_irq_enable(EXTI5_9_IRQn,6U, 2U); 
-	
-    //中断线15-PA15  14--PB14
-     nvic_irq_enable(EXTI10_15_IRQn,6U, 2U);  
+    nvic_irq_enable(EXTI10_15_IRQn,6U, 2U);  
   exti_init(EXTI_0, EXTI_INTERRUPT, EXTI_TRIG_FALLING);	
 	exti_init(EXTI_5, EXTI_INTERRUPT, EXTI_TRIG_FALLING);
 	exti_init(EXTI_15, EXTI_INTERRUPT,EXTI_TRIG_FALLING);
@@ -36,18 +31,18 @@ void Key_EXTI_Init(void)
 }
 uint8_t KEY_Scan(uint8_t mode)
 {	 
-	static uint8_t key_up=1;//按键按松开标志
-	if(mode)key_up=1;  //支持连按		  
+	static uint8_t key_up=1;
+	if(mode)key_up=1;  	  
 	if(key_up&&(keypad_read_level==0||keypad_write_level==0|| keystart_sigal_level==0||keypad_FCHK_level==0))
 	{
-		delay_us(10000);//去抖动 
+		delay_us(10000);
 		key_up=0;
 		if(keypad_read_level==0)return KEYPAD_RD_PRES;
 		else if(keypad_write_level==0)return KEYPAD_WR_PRES;
 		else if(keypad_FCHK_level==0)return KEYPAD_FCHK_PRES;
 		else if(keystart_sigal_level==0)return KEYSTART_SIG_PRES;
 	}else if(keypad_read_level==1&&keypad_write_level==1&&keystart_sigal_level==1)key_up=1; 	    
- 	return 0;// 无按键按下
+ 	return 0;
 }
 void EXTI10_15_IRQHandler(void)
 {
@@ -113,6 +108,10 @@ void EXTI5_9_IRQHandler(void)
 	}
 		taskEXIT_CRITICAL_FROM_ISR( retur );
 	
+}
+void cardrd_task(void *pvParameters)
+{
+  keypad_event_check();	
 }
 void keypad_event_check(void)
 {

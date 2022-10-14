@@ -1,54 +1,5 @@
 #include "headfile.h"
 
-
-static  uint32_t g_mciramloadaddr;
-enum _vector_table_entries {
-    fInitialSP = 0, //!< Initial stack pointer.
-    fInitialPC = 1, //!< Reset vector.
-};
-/*******************************************************************************
-*   Name: get_user_application_entry 获取用户应用程序入口
-*  Brief:    获取用户应用程序入口
-*  Input:  *appEntry 应用程序入口指针,*appStack 应用程序的堆栈指针
-* Output:  appEntry pointer & appStack pointer
-* Return:
-*******************************************************************************/
-static void get_user_application_entry(uint32_t *appEntry, uint32_t *appStack)
-{
-
-    volatile uint32_t *APP_VECTOR_TABLE;
-    APP_VECTOR_TABLE = (uint32_t *)g_mciramloadaddr;
-    *appEntry = APP_VECTOR_TABLE[fInitialPC];
-    *appStack = APP_VECTOR_TABLE[fInitialSP];
-}
-/*******************************************************************************
-*   Name: jump_to_application 跳转到应用程序入口
-*  Brief:  跳转到应用程序入口并执行启动应用程序
-*  Input:  applicationAddress ,stackPointer
-* Output:
-* Return:
-*******************************************************************************/
-static void jump_to_application(uint32_t applicationAddress, uint32_t stackPointer)
-{
-    // need to ensure the values we are using are not stored on the previous stack
-    //uint32_t s_stackPointer = 0;
-    //s_stackPointer = stackPointer;
-    static void (*MCAPPBoot)(void) = 0;
-    MCAPPBoot = (void (*)(void))applicationAddress;
-   // debug_printf("start MC program...\r\n");
-    // Set stack pointers to the application stack pointer.
-    __set_MSP(stackPointer);
-    __set_PSP(stackPointer);
-    // Jump to the application.
-    MCAPPBoot();
-}
-void fw_apprunset(void)
-{
-	uint32_t  Entryadr=0,appStack=0;
-	g_mciramloadaddr=*(uint32_t*)(FWCURRNFLSADR);
-	get_user_application_entry(&Entryadr, &appStack);
-	jump_to_application(Entryadr, appStack);
-}
 uint16_t fm_verchk(void)
 {
 	uint32_t dtmp=0;
@@ -62,63 +13,7 @@ bool fmu_verupdchk(uint16_t v)
 	else
 		return FALSE;
 }
-/*
-void fmc_erase_pages(uint32_t flsadr,uint8_t pgsz)
-{
-    uint8_t erase_counter;
 
-    fmc_unlock();
-
-    fmc_flag_clear(FMC_FLAG_BANK0_END);
-    fmc_flag_clear(FMC_FLAG_BANK0_WPERR);
-    fmc_flag_clear(FMC_FLAG_BANK0_PGERR);
-
-    for(erase_counter = 0; erase_counter < pgsz; erase_counter++){
-        fmc_page_erase(flsadr + (FLS_PGSZ * erase_counter));
-        fmc_flag_clear(FMC_FLAG_BANK0_END);
-        fmc_flag_clear(FMC_FLAG_BANK0_WPERR);
-        fmc_flag_clear(FMC_FLAG_BANK0_PGERR);
-    }
-
-    fmc_lock();
-}*/
-/*
-static void fmc_program(void)
-{
-
-    fmc_unlock();
-
-    address = FMC_WRITE_START_ADDR;
-
-    while(address < FMC_WRITE_END_ADDR){
-        fmc_word_program(address, data0);
-        address += 4;
-        fmc_flag_clear(FMC_FLAG_BANK0_END);
-        fmc_flag_clear(FMC_FLAG_BANK0_WPERR);
-        fmc_flag_clear(FMC_FLAG_BANK0_PGERR); 
-    }
-
- 
-    fmc_lock();
-}
- bool fmc_program_check(uint32_t flswadr,uint32_t rdadr,uint8_t wsz)
-{
-    uint32_t i;
-    uint32_t* ptrd=NULL;
-	  uint32_t* rtrd=NULL; 
-    ptrd = (uint32_t *)flswadr;
-    rtrd =(uint32_t *)rdadr;
-    for(i = 0; i <wsz; i++){
-        if((*ptrd) != (*rtrd)){
-					  return FALSE;
-           // break;
-        }else{
-            ptrd++;
-					  rtrd++;
-        }
-    }
-		return TRUE;
-}*/
 bool fm_updte(uint32_t periph_addr,uint32_t memadr,uint8_t sz)
 { 
 	 uint32_t timeout=100000;	
@@ -219,32 +114,7 @@ uint8_t fm_get_pklen(NXP_DEVTPE_ENUM devtype,uint8_t pklen,uint16_t sz)
 	 }	
    return calpksz;	 
 }
-/*
-bool fmc_prg(uint32_t staradr, uint32_t *pdata,uint32_t bytesz)
-{
-	  fmc_unlock();
-	  uint32_t adrtar=staradr,adrend=0;
-    uint32_t* dtmp=NULL;	
-	   if(bytesz%4){
-			   return FALSE;
-		 }
-		   adrend=adrtar+bytesz;
-		   dtmp= pdata;
-    while(adrtar < adrend){
-        if(fmc_word_program(adrtar, *dtmp)!=FMC_READY)return FALSE;
-        adrtar += 4;
-			  dtmp+=1;
-        fmc_flag_clear(FMC_FLAG_BANK0_END);
-        fmc_flag_clear(FMC_FLAG_BANK0_WPERR);
-        fmc_flag_clear(FMC_FLAG_BANK0_PGERR); 
-    }
-		if(fmc_program_check(staradr,(uint32_t)pdata,bytesz/4)!=TRUE)
-		{
-			return FALSE;
-		}
-    fmc_lock();
-   return TRUE;		
-}*/
+
 bool fm_set_swfwadr(uint32_t swflsz,uint32_t updfwv)
 {
 

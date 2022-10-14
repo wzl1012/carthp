@@ -1,6 +1,6 @@
 #ifndef _PCF7936_H_
 #define _PCF7936_H_
-#include "pcf7991.h"
+#include "headfile.h"
 #define PCF7936_T_O					(8)
 // Command Handling
 #define PCF7936_T_WAIT_TR			(1300)					// Transponder response delay

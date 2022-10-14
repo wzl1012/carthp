@@ -7,8 +7,7 @@
 #define Max_Column	128
 #define Max_Row		32
 
-extern volatile uint8_t  cls_kbrdflg;
-extern volatile uint8_t  cls_lcddisflg;
+
 
 void OLED_ShowString(uint8_t x,uint8_t y,uint8_t *chr,uint8_t Char_Size,uint8_t len);
 void oled_print_hex(uint8_t x, uint8_t y,uint8_t size, const uint8_t *p_hex, uint8_t bytes);

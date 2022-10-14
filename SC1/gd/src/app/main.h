@@ -17,7 +17,6 @@
 #define mem_size(array)		(sizeof(array) / sizeof(array[0]))
 #define  FLSBASE     0x08000000
 //#define  FLSOFF      0x16000
-//extern SemaphoreHandle_t BSemaphore;
 extern  TaskHandle_t CardrdTask_Handler;
 extern  TaskHandle_t SLEEP_Task_Handler;
 extern  TaskHandle_t POWER_M_Task_Handler;

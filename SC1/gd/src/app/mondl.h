@@ -15,11 +15,12 @@ typedef enum{
 	PCF7952=0xA2,
 	PCF7953=0xA3,
 	PCF7941=0xA4,
+	PCF7922=0xA5,
 	OTHERDEV=0xB0
 }NXP_DEVTPE_ENUM;
-extern bool kfw_pkgszchk(NXP_DEVTPE_ENUM devtype,uint16_t fmpkgsz);
-extern bool Rom_parameter_cofg(DEV_FTCODE fcode,NXP_DEVTPE_ENUM devtype,uint32_t ERdlflsadr,uint32_t EERdlflsadr);
-extern bool fm_burd(DEV_FTCODE fcode,NXP_DEVTPE_ENUM devtype,/*uint32_t binsz,*/uint32_t ERdlflsadr,uint32_t EERdlflsadr);
-extern uint8_t key_id(DEV_FTCODE devcd,NXP_DEVTPE_ENUM devtype,uint8_t* rddtype);
+bool kfw_pkgszchk(NXP_DEVTPE_ENUM devtype,uint16_t fmpkgsz);
+bool Rom_parameter_cofg(DEV_FTCODE fcode,NXP_DEVTPE_ENUM devtype,uint32_t ERdlflsadr,uint32_t EERdlflsadr);
+bool fm_burd(DEV_FTCODE fcode,NXP_DEVTPE_ENUM devtype,/*uint32_t binsz,*/uint32_t ERdlflsadr,uint32_t EERdlflsadr);
+uint8_t key_id(DEV_FTCODE devcd,NXP_DEVTPE_ENUM devtype,uint8_t* rddtype);
 #endif
 

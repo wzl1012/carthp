@@ -1,24 +1,7 @@
 #ifndef __KEY_H
 #define __KEY_H	 
 #include "gd32f10x.h"
-//////////////////////////////////////////////////////////////////////////////////	 
-//本程序只供学习使用，未经作者许可，不得用于其它任何用途
-//ALIENTEK战舰STM32开发板
-//按键驱动代码	   
-//正点原子@ALIENTEK
-//技术论坛:www.openedv.com
-//修改日期:2012/9/3
-//版本：V1.0
-//版权所有，盗版必究。
-//Copyright(C) 广州市星翼电子科技有限公司 2009-2019
-//All rights reserved									  
-//////////////////////////////////////////////////////////////////////////////////   	 
 
-
-//#define KEY0 PEin(4)   	//PE4
-//#define KEY1 PEin(3)	//PE3 
-//#define KEY2 PEin(2)	//PE2
-//#define WK_UP PAin(0)	//PA0  WK_UP
 
 #define keypad_read_level   gpio_input_bit_get(GPIOA,GPIO_PIN_15)//读取按键0
 #define keypad_write_level  gpio_input_bit_get(GPIOC,GPIO_PIN_5)//读取按键1
@@ -42,4 +25,5 @@ extern volatile uint8_t rfckstart;
 uint8_t KEY_Scan(uint8_t);  	//按键扫描函数	
 void keypad_event_check(void);
 void Key_EXTI_Init(void);
+void cardrd_task(void *pvParameters);
 #endif

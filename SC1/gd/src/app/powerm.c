@@ -2,7 +2,6 @@
 
 extern volatile uint8_t pswlckflg;
 extern volatile uint8_t  cmdflg;
-extern volatile uint32_t t3;
 extern const unsigned char BAT_EMPT_ICON_BMP[];
 extern const unsigned char BT_ICON_BMP[];
 extern volatile uint8_t exti_keystartflg;
@@ -12,6 +11,16 @@ extern volatile enum {
 		chekhd,
 	  brcv,
 	}krvstate;
+static bool BT_disc(void)
+{
+	sprintf((char *)sendbuf, "AT+DISC\r\n");
+	sprintf((char *)ackbuf, "OK+DISC\r\n");
+		if(BT_u2sndr_cmd(sendbuf,ackbuf)){
+		 return TRUE;
+	}else{
+		 return FALSE;
+	}
+}
 bool  BATV_scchek(void)
 {
 	uint8_t batperv=0;
@@ -35,7 +44,6 @@ bool  BATV_scchek(void)
 }
 static void ent_sleep_mode(void)
 {
-	//rcu_periph_clock_enable(RCU_PMU);
 	 slpflg=1;
 	 pmu_deinit();
 	 pmu_to_deepsleepmode(PMU_LDO_LOWPOWER,WFI_CMD);
@@ -51,7 +59,10 @@ static  void chek_pw(void)
 	OLED_drawline(55,5,55+(v_value*42/100),28,1);
  taskEXIT_CRITICAL(); 	
 }
-
+void SLEEP_task(void *pvParameters)
+{	
+	 sleep_mag();
+}
 void sleep_mag(void)
 {
 	//timer_enable(TIMER1);
@@ -113,23 +124,17 @@ void sleep_mag(void)
  //vTaskDelay(10);	 
 	}	
 }
-#define  DBGBURD 0
 #define  TO   110
+void POWER_M_task(void *pvParameters)
+{	
+	power_mag();	
+}
 void power_mag(void)
 {
 	static uint8_t bt_linked=0xFF;
 	uint8_t v_value=0;
 	uint8_t clsscnt=0;
 	while(1){
-		      //if(pswlckflg)
-		      //debug_printf("\r\nurs1=%x,d=%x",USART_RX_STA,USART_RX_BUF[USART_RX_STA&0X3FFF]);
-#if DBGBURD
-		uint32_t  ERdlflsadr=0;
-		ERdlflsadr=BIN_EEFLSBR_START_ADDR+1028;
-		if(fm_burd(GC_DEV,PCF7953,ERdlflsadr,BIN_EEFLSBR_START_ADDR)==FALSE){
-			debug_printf("\r\nburned fail!");
-		}
-#endif	
 		 //if(eTaskGetState(RFCK_Task_Handler)==eSuspended)
 			 // rfckstart=0;		
 			if(!pswlckflg){

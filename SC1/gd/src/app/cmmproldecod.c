@@ -6,72 +6,8 @@ uint8_t  cmdflg=0;
 		chekhd,
 	  brcv,
 	}krvstate=chekhd;
-uint16_t checksum(uint8_t *u2rev,uint8_t datasz)
-{
-	uint16_t checksum=0;
-  for(uint8_t i=0;i<datasz; i++){
-		  checksum+=u2rev[i];
-	}
-  return checksum; 	
-}
 
-static float v_check(void)
-{
-	   /* ADC software trigger enable */
-     adc_software_trigger_enable(ADC0, ADC_REGULAR_CHANNEL);
-     ///* delay a time in milliseconds */
-	    while(dma_flag_get(DMA0, DMA_CH0,DMA_FLAG_FTF)==RESET);
-     //delay_us(1000*1000);
-	   //adc_flag_clear(ADC0,ADC_FLAG_EOC);
-     	dma_flag_clear(DMA0, DMA_CH0,DMA_FLAG_FTF);
-	     //debug_printf("\r\n TCN2=%0x\r\n",TCNT2_V);
-	   //adc_timer1trig_confg( );
-	 //debug_printf("\r\n TCN2=%0x\r\n",TCNT2_V);
-	   delay_us(1000);
-	   if(adc_value[0]){
-			 //adc_timer1trig_confg( );
-			float tmpv=0;
-      tmpv=(adc_value[0] * 3.3 / 4096);
-			 //adc_value[0]=0;
-			 return tmpv;
-	 }
-		 return FALSE;
-}
-uint8_t v_to_per(float v_value)
-{
-	uint16_t tmp=(uint16_t)(v_value*10000);
-	if(tmp>=MAX_LV){
-     return 100;
-	}else if(tmp<MAX_LV&&tmp>=MIN_LV){
-		   if(((tmp-MIN_LV)%(STEPV))==0)
-		   return((tmp-MIN_LV)/(STEPV));
-			 else
-			 return((tmp-MIN_LV)/(STEPV)+1);	 
-	}else if(tmp<MIN_LV){
-		  return 0;		
-	}	
-	return FALSE;
-}
-uint8_t BATV_swtrigcheck(void )
-{
-	float tmpv=0;
-		timer_disable(TIMER1);
-		adc_disable(ADC0);
-		//TCNT2=TIM1_PERID;
-    adc_external_trigger_source_config(ADC0, ADC_REGULAR_CHANNEL, ADC0_1_2_EXTTRIG_REGULAR_NONE);
-		adc_external_trigger_config(ADC0, ADC_REGULAR_CHANNEL, ENABLE);
-		adc_flag_clear(ADC0,ADC_FLAG_EOC);
-	  //  delay_us(1000);
-    /* ADC calibration and reset calibration */
-   // adc_calibration_enable(ADC0);
-	  adc_value[0]=0;
-		adc_enable(ADC0);
-		if((tmpv=v_check())>0){
-			 return v_to_per(tmpv);
-		}else{
-			 return FALSE;
-		}	
-}
+
 uint8_t BT_recvdatadec(uint8_t *u2rev)
 {
 	uint8_t revlen=0;

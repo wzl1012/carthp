@@ -10,8 +10,6 @@
 
 
 uint16_t checksum(uint8_t *u2rev,uint8_t datasz);
-uint8_t BT_recvdatadec(uint8_t *u2rev);
-uint8_t BATV_swtrigcheck(void );
 uint8_t v_to_per(float v_value);
 
 #endif

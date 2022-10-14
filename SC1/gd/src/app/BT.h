@@ -10,15 +10,13 @@ typedef enum{
  sysfail=0xee		
 }state_eum;
 
-uint8_t BT_UARTIF_init(void);
 void BT_R_check(void);
-void BT_MOD_reset(void);
-bool set_BTname(void);
 void  BT_rdcmd_exe(uint8_t rdcmd);
 bool  BT_send(uint8_t* pdata,uint8_t len,uint8_t pktype,uint8_t rdcmd);
 bool u1_to_btsend(uint8_t cmd,uint8_t*pdata,uint8_t size);
-bool BT_disc(void);
-extern void u2_sendhex(uint8_t *f,uint8_t bytes);
+uint8_t BT_recvdatadec(uint8_t *u2rev);
+void BTR_T_task(void *pvParameters);
+void u2_sendhex(uint8_t *f,uint8_t bytes);
 #endif
 
 

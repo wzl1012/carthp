@@ -1,19 +1,4 @@
-/*******************************************************************************
-* Copyright (C) 2020-2022, CVA Systems (R),All Rights Reserved.
-*
-* File Name: cfg-parameter.h
-*
-* Author: KC
-*
-* Created: 2020-05-15
-*
-* Abstract:
-*
-* Reference:
-*
-* Version:v0.1
-*
-*******************************************************************************/
+
 #ifndef _CFG_PARAMETER_H_
 #define _CFG_PARAMETER_H_
 #include "stdint.h"

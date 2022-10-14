@@ -1,119 +1,7 @@
 #include "headfile.h"
 
-#define L_BDRNUM 8
-//#define  BT_LKSTA  gpio_input_bit_get(GPIOC,GPIO_PIN_2)
 
-static bool BT_u2sndr_cmd(char*cmd,char* rspd)
-{	
-	uint8_t cmdlen=0,rev_datalen=0;
-	uint16_t  timeout=50000;
-	char  uartrevbuf[30]={0};
-	 cmdlen=strlen(cmd)/*+strlen(data)*/;
-	  /*if(strlen(data)==0){
-		 rev_datalen=cmdlen+2;
-	 }else{
-		 rev_datalen=cmdlen;
-	 }*/
-	//if(usart_flag_get(USART1,USART_FLAG_RBNE)){
-		 usart_data_receive(USART1);
-	//	usart_flag_clear(USART1,USART_FLAG_RBNE);
-	//}
-	rev_datalen=strlen(rspd);
-	fputc_u2(cmd,cmdlen);
-	for(uint8_t i=0;i<rev_datalen;i++){
-			 while(usart_flag_get(USART1,USART_FLAG_RBNE)==RESET&&timeout){
-				    delay_us(10);
-				 	  timeout--;
-				}
-			if(timeout==0)
-				break;
-      else{  
-				      // usart_flag_clear(USART1,USART_FLAG_RBNE);
-					     uartrevbuf[i]=(uint8_t)usart_data_receive(USART1);
-				       timeout=50000;				        
-					    }
-	}	
-//debug_printf("\r\nrevch=%s",uartrevbuf);
-     if(strcmp(uartrevbuf,rspd/*"OK+S_BAUD=7"*/)==0){		 
-					  return TRUE;
-	    }/*else if(strcmp(uartrevbuf,"OK+S_NAME=syz01")==0){
-				    return TRUE;
-			}*/else{
-				  return FALSE;
-			}
-}
-static char sendbuf[30];
-static char ackbuf[30];
-/*
-static bool asc_to_dec(char inpasc,uint8_t*dec)
-{
-	if((inpasc>='0')&&(inpasc<='9')){
-		 *dec=inpasc-'0';
-		 return TRUE;
-	}else{
-		return FALSE;
-	}
-}*/
 
-static bool BT_ubdrate(void)
-{
-	sprintf((char *)sendbuf, "AT+BAUD?\r\n");
-	sprintf((char *)ackbuf, "OK+G_BAUD=7\r\n");
-		if(BT_u2sndr_cmd(sendbuf,ackbuf)){
-		 return TRUE;
-	}else{
-		 return FALSE;
-	}
-}
-uint8_t BT_UARTIF_init(void)
-{
-	BT_MOD_reset();
-	if(!BT_ubdrate()){
-		/*uint8_t dec=0;
-		if(!asc_to_dec(ackbuf[0],&dec)){
-			return FALSE;
-		}*/
-	uint8_t  bdratenum=0;
-	uint32_t bdratelst[L_BDRNUM]={
-	  2400,4800,9600,19200,38400,57600,115200,128000
-};
-	while(bdratenum<L_BDRNUM){
-		      usart_disable(USART1);
-				 	usart_baudrate_set(USART1,bdratelst[bdratenum]);
-          usart_enable(USART1);		
-		      sprintf((char *)sendbuf, "AT+BAUD=7\r\n");
-		      sprintf((char *)ackbuf, "OK+S_BAUD=7\r\n");
-          if(BT_u2sndr_cmd(sendbuf,ackbuf)){
-						if(bdratelst[bdratenum]!=115200)
-						 usart_baudrate_set(USART1,115200);	
-						 BT_MOD_reset();					
-					   return TRUE;
-				  }else{
-					++bdratenum;
-				 }
-		  }
-     return FALSE;	
-	 }
-	return TRUE;
-}	
-			 
-void BT_MOD_reset(void)
-{
-	 gpio_bit_reset(GPIOC,GPIO_PIN_3);
-	 delay_us(100000);
-	 gpio_bit_set(GPIOC,GPIO_PIN_3);
-	 delay_us(2000000);
-}
-static bool BT_devname(void)
-{
-	sprintf((char *)sendbuf, "AT+NAME?\r\n");
-	sprintf((char *)ackbuf, "OK+G_NAME=K3-Genie\r\n"/*,temp[0],temp[1],temp[2]*/);
-		if(BT_u2sndr_cmd(sendbuf,ackbuf)){
-		 return TRUE;
-	}else{
-		 return FALSE;
-	}
-}
 /*
 static bool BT_chkbtv(void)
 {
@@ -125,31 +13,10 @@ static bool BT_chkbtv(void)
 		 return FALSE;
 	}
 }*/
-bool set_BTname(void)
+
+void BTR_T_task(void *pvParameters)
 {
-	//BT_chkbtv( );
-	if(!BT_devname()){
-	sprintf((char *)sendbuf, "AT+NAME=K3-Genie\r\n"/*,temp[0],temp[1],temp[2]*/);
-	sprintf((char *)ackbuf, "OK+S_NAME=K3-Genie\r\n"/*,temp[0],temp[1],temp[2]*/);
-	if(BT_u2sndr_cmd(sendbuf,ackbuf)){
-		BT_MOD_reset( );
-		 return TRUE;
-	}else{
-		 return FALSE;
-	}
- }else{
-	 return TRUE;
- }
-}
-bool BT_disc(void)
-{
-	sprintf((char *)sendbuf, "AT+DISC\r\n");
-	sprintf((char *)ackbuf, "OK+DISC\r\n");
-		if(BT_u2sndr_cmd(sendbuf,ackbuf)){
-		 return TRUE;
-	}else{
-		 return FALSE;
-	}
+	BT_R_check();
 }
 
 void BT_R_check(void)
@@ -174,7 +41,6 @@ void BT_R_check(void)
 				 USART_RX_STA=0x0;
 				 nvic_irq_enable(USART1_IRQn,7,2);
 			  //}
-				  debug_printf("\r\ntask2");
 			}
 		//portBASE_TYPE uxHighWaterMark;
     //uxHighWaterMark=uxTaskGetStackHighWaterMark(BTR_T_Task_Handler );
