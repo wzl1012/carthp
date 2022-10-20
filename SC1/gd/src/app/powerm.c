@@ -59,6 +59,22 @@ static  void chek_pw(void)
 	OLED_drawline(55,5,55+(v_value*42/100),28,1);
  taskEXIT_CRITICAL(); 	
 }
+void entsl_clsop(void)
+{
+																			
+																		  OLED_Display_Off( );
+																		  RFCHK_5V_OFF; 
+																		  ICD_5V_OFF;
+                                      rcu_periph_clock_disable(RCU_TIMER1);
+                                      rcu_periph_clock_disable(RCU_TIMER2);
+	                                    rcu_periph_clock_disable(RCU_TIMER4);
+	                                     BT_VCC_OFF;
+                                      rcu_periph_clock_disable(RCU_ADC0);
+	                                    rcu_periph_clock_disable(RCU_GPIOC);
+	                                    rcu_periph_clock_disable(RCU_GPIOD);																		 
+	
+}
+
 void SLEEP_task(void *pvParameters)
 {	
 	 sleep_mag();
@@ -95,13 +111,16 @@ void sleep_mag(void)
 				 gpio_bit_reset(GPIOC,GPIO_PIN_3);
 				 BT_VCC_OFF;
 				 ent_sleep_mode();
-         OLED_Display_On();
+         //OLED_Display_On();
 				 gpio_init(GPIOA,GPIO_MODE_AF_PP, GPIO_OSPEED_50MHZ, GPIO_PIN_2);
 				 if(exti_keystartflg){
 					 OLED_Clear();
+					 OLED_Display_On();
 				   OLED_ShowString(0,0,DIS_V,16,16);
 					 exti_keystartflg=0;
 					 //delay_us(100000);
+				 }else{
+					 OLED_Display_On();
 				 }
 				  BT_VCC_ON;
 				 //LCD_VCC_ON;
@@ -158,7 +177,7 @@ void power_mag(void)
          //}					 
 			 //}
 			}
-  if((t2_tick_1s>5)&&(cmdflg==1||cmdflg==2)){
+  if((t2_tick_1s>6)&&(cmdflg==1||cmdflg==2)){
 		 t2_tick_1s=0;
 		timer4_ov_interrupt_dis();
 		timer4_stop();

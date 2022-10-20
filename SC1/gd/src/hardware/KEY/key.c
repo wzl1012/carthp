@@ -137,7 +137,7 @@ switch(keypre){
 		   exti_interrupt_disable(EXTI_1);
 		}
 		  ICD_5V_ON;
-     delay_us(20);
+
 	pcf7991_init();	 
 	tms3705_init();			
 			  oled_print_reading(); 

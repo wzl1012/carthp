@@ -24,6 +24,7 @@ extern volatile uint8_t t2_tick_1s;
 #define TCNT2                   TIMER_CAR(TIMER1)
 #define TCNT2_V                  TIMER_CNT(TIMER1)
 #define TCNT_V                  TIMER_CNT(TIMER2)
+#define TCNT4_V                  TIMER_CNT(TIMER4)
 #define timer2_ov_interrupt_en()		timer_interrupt_enable(TIMER2,TIMER_INT_UP)
 #define timer2_ov_interrupt_dis()		timer_interrupt_disable(TIMER2,TIMER_INT_UP)
 #define timer4_ov_interrupt_dis()		timer_interrupt_disable(TIMER4,TIMER_INT_UP)

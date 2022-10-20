@@ -6,7 +6,7 @@ static void user_gpio_init(void)
 {
 	//GPIO_InitTypeDef  GPIO_InitStructure;
 	rcu_periph_clock_enable(RCU_GPIOA);
-	rcu_periph_clock_enable(RCU_GPIOB);
+  //rcu_periph_clock_enable(RCU_GPIOB);
 	rcu_periph_clock_enable(RCU_GPIOC);
 	rcu_periph_clock_enable(RCU_AF);
 	rcu_periph_clock_enable(RCU_GPIOD);
@@ -29,7 +29,7 @@ static void user_gpio_init(void)
 	gpio_bit_reset(GPIOC, GPIO_PIN_9);
 	//power control pin PB14,PB12 //usb chek
 	gpio_init(GPIOB,GPIO_MODE_IPU, GPIO_OSPEED_50MHZ, GPIO_PIN_14|GPIO_PIN_9);//PB.14  key_pws //PB.9 usbchek in
-	gpio_init(GPIOB,GPIO_MODE_OUT_PP, GPIO_OSPEED_50MHZ, GPIO_PIN_12);//PB.12  pws
+	//gpio_init(GPIOB,GPIO_MODE_OUT_PP, GPIO_OSPEED_50MHZ, GPIO_PIN_12);//PB.12  pws
 	gpio_init(GPIOB, GPIO_MODE_OUT_PP,GPIO_OSPEED_50MHZ,ICID_5V_CTRL_PB13| RFCHK_5V_CTRL_PB15);
 	//usb chek
 	//gpio_init(GPIOB,GPIO_MODE_IPU, GPIO_OSPEED_50MHZ, GPIO_PIN_9);//PB.9 usbchek in

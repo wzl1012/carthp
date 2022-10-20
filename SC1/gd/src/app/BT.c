@@ -1,19 +1,5 @@
 #include "headfile.h"
 
-
-
-/*
-static bool BT_chkbtv(void)
-{
-	sprintf((char *)sendbuf, "AT+VERS?\r\n");
-	sprintf((char *)ackbuf, "OK+G_NAME=syz-vvvvvvvvv\r\n");
-		if(BT_u2sndr_cmd(sendbuf,ackbuf)){
-		 return TRUE;
-	}else{
-		 return FALSE;
-	}
-}*/
-
 void BTR_T_task(void *pvParameters)
 {
 	BT_R_check();
@@ -23,14 +9,8 @@ void BT_R_check(void)
 {
 	uint32_t err=pdFALSE;
 	uint8_t tmpdata=0;
-	//ulTaskNotifyTake(pdTRUE,portMAX_DELAY);
 	while(1){
-		// if(BT_LKSTA){
-		//debug_printf("\r\nurs=%04x",USART_RX_STA);
-		    //  if(i==35)
-				//	debug_printf("\r\nno35");
 					err=ulTaskNotifyTake(pdTRUE,portMAX_DELAY);
-		    // debug_printf("\r\nerr=%d,rst=%x,i=%d",err,USART_RX_STA,i++);
          if(err==1){						
 					nvic_irq_disable(USART1_IRQn); 
 			   if((USART_RX_STA&0x2000)==0x2000||BT_recvdatadec(USART_RX_BUF)==FALSE){
@@ -42,13 +22,6 @@ void BT_R_check(void)
 				 nvic_irq_enable(USART1_IRQn,7,2);
 			  //}
 			}
-		//portBASE_TYPE uxHighWaterMark;
-    //uxHighWaterMark=uxTaskGetStackHighWaterMark(BTR_T_Task_Handler );
-		//vProtFree(BTR_T_Task_Handler);
-    //debug_printf("\r\ntasksz=%d",(uint16_t)uxHighWaterMark);
-		//debug_printf("\r\ntask2end");		
-	// }
-	//vTaskDelay(10);	
 	}		
 }
 bool  BT_send(uint8_t* pdata,uint8_t len,uint8_t pktype,uint8_t rdcmd)
@@ -57,7 +30,6 @@ bool  BT_send(uint8_t* pdata,uint8_t len,uint8_t pktype,uint8_t rdcmd)
 	uint8_t  s_sz=0/*tmpsz=0*/;
 	if(pktype==0xd2){
 		s_sz=len+9;		
-		//tmpdata[7]=pdata[len-1];
 	}else if(pktype==0xd3){
 			s_sz=len+8;
 	}
@@ -67,7 +39,6 @@ bool  BT_send(uint8_t* pdata,uint8_t len,uint8_t pktype,uint8_t rdcmd)
   tmpdata[2]=s_sz;
 	tmpdata[5]=pktype;
 		if(pktype==0xd2){	
-		//tmpdata[7]=pdata[len-1];
 		tmpdata[6]=rdcmd;
 		for(uint8_t i=0;i<len;i++)
     tmpdata[7+i]=pdata[i];
@@ -75,17 +46,10 @@ bool  BT_send(uint8_t* pdata,uint8_t len,uint8_t pktype,uint8_t rdcmd)
 		for(uint8_t i=0;i<len;i++)
     tmpdata[6+i]=pdata[i];
 	}
-	//tmpdata[6]=rdcmd;
- 	//tmpdata[6]=pdata[len-1];
 	tmpdata[3]=(checksum(&tmpdata[5],s_sz-7)&0xFF00)>>8;
   tmpdata[4]=(checksum(&tmpdata[5],s_sz-7)&0xFF);
   tmpdata[s_sz-2]=0xaa;
   tmpdata[s_sz-1]=0x55;	
-	//tmpsz=s_sz;
-	//debug_printf("\r\nbtsd=");
-	//tmppri=tmpdata;
-	//while(tmpsz--)
-	//debug_printf("%02x",*(tmppri++));
 	u2_sendhex(tmpdata,s_sz);
 	free(tmpdata);
 	return TRUE;

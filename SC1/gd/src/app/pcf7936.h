@@ -92,7 +92,6 @@ typedef struct
 	uint8_t random[4];			// MSbit:  :LSBit ,hitag2:32bit,hitag2+:64bit
 	uint8_t secret_key[6];		// MSbit:  :LSBit,hitag2:48bit,hitag2+:96bit
 	uint8_t cartype;
-	//uint8_t hitagmode;
 } pcf7936_tag_t;
 
 

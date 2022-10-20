@@ -11,10 +11,7 @@ uint8_t  cmdflg=0;
 uint8_t BT_recvdatadec(uint8_t *u2rev)
 {
 	uint8_t revlen=0;
-	//static uint16_t fmrvpkg_cnt=0;
-	//debug_printf("\r\ncnt=%d",fmrvpkg_cnt);
-	   //  if(fmrvpkg_cnt==48)
-		 // debug_printf("\r\nno48");
+
 	//if(USART_RX_STA&0x8000){
       if(u2rev[0]!=0xfd&&u2rev[1]!=0xdf){
 				  return FALSE;
@@ -42,10 +39,6 @@ uint8_t BT_recvdatadec(uint8_t *u2rev)
 		uint8_t tmpwsz=0,tmpwsz2=0;
 		uint32_t tmp=0;
 		uint32_t  tmpadr=0;
-	/*	static enum {
-		chekhd,
-	  brcv,
-	}state;*/
     switch(u2rev[5]){
 			 case(0xd1):{
 				 switch(u2rev[6]){
@@ -164,31 +157,36 @@ uint8_t BT_recvdatadec(uint8_t *u2rev)
                                  else
                                  tmpadr=FLS_SEC1_ADR+fmcalpkgsz;																	 
 	                          }
+												 v_value=0;
 						WAGIN:			if(fw_dlfls(tmpadr,tmp,tmpwsz2)){
 												      v_value=0xe4;
 												      BT_send(&v_value,1,0xd3,u2rev[6]);
 													    fmrvpkg_cnt++;							                
                             	fmcalpkgsz+=tmpwsz;
-                               debug_printf("\r\ncnt=%d,rvpksz=%d,fmsz=%d",fmrvpkg_cnt,fmcalpkgsz,fmpkgsz);
+                              // info_printf("\r\ncnt=%d,rvpksz=%d,fmsz=%d",fmrvpkg_cnt,fmcalpkgsz,fmpkgsz);
 															if(fmcalpkgsz==fmpkgsz){
 																     timer4_stop();
 		                                 timer4_ov_interrupt_dis();
 																     t2_tick_1s=0;
 																     cmdflg=0;
                                        v_value=0xe5;
-												              BT_send(&v_value,1,0xd3,u2rev[6]);																			 
+												              BT_send(&v_value,1,0xd3,u2rev[6]);
+                                        																
                                      if(fm_set_swfwadr(fmcalpkgsz,udfwvtmp)==FALSE){
 																			   return FALSE; 
 																		 }
 																		 //cmdflg=0;
-																		 INTX_DISABLE( );
-																		 NVIC_SystemReset();
-																	 //}
-															}else{
-																			 v_value=0xe0;
-												              BT_send(&v_value,1,0xd3,u2rev[6]);
-																         return 0xe0;
-																		 }														
+																		  INTX_DISABLE( );
+																		  delay_us(150000);
+																		  entsl_clsop( );
+																		  delay_us(200000);
+																		  NVIC_SystemReset();
+																	 }
+															//}else{
+																		//	 v_value=0xe0;
+												             // BT_send(&v_value,1,0xd3,u2rev[6]);
+																        // return 0xe0;
+																		 //}														
 											}else{
 																v_value++;
 														    if(v_value<=2)
@@ -233,7 +231,7 @@ uint8_t BT_recvdatadec(uint8_t *u2rev)
 						   if(BYTASSBL(&u2rev[7],4)==BINCD){
 								  devtyp=NUNDEV;
 								if((u2rev[11]!=0x31&&u2rev[11]!=0x32)||(u2rev[12]!=0x51&&u2rev[12]!=0x52&&u2rev[12]!=0x53&&
-									  u2rev[12]!=0x54&&u2rev[12]!=0x20)){
+									  u2rev[12]!=0x54&&u2rev[12]!=0x55&&u2rev[12]!=0x20)){
 										 return FALSE;
 									}else{
 										if(u2rev[11]==0x31)
@@ -247,9 +245,15 @@ uint8_t BT_recvdatadec(uint8_t *u2rev)
                         devtyp=PCF7945;
                        else
                          devtyp=PCF7953;												 
-									}else if(u2rev[12]==0x52||u2rev[12]==0x54){
+									}else if(u2rev[12]==0x52){
 										   //udfwvtmp=0x02;
 										   devtyp=PCF7952;
+									}else if(u2rev[12]==0x54){
+										   //udfwvtmp=0x02;
+										   devtyp=PCF7941;
+									}else if(u2rev[12]==0x55){
+										   //udfwvtmp=0x02;
+										   devtyp=PCF7922;
 									}else if(u2rev[12]==0x20){
 										   devtyp=OTHERDEV; 
 										    fmpkgsz=0;
@@ -287,8 +291,7 @@ uint8_t BT_recvdatadec(uint8_t *u2rev)
 									     BT_send(&v_value,1,0xd3,u2rev[6]);
                        krvstate=brcv;
 									}
-								 }
-                if(result==2){
+								 }else if(result==2){
 									v_value=0xe8;
 									BT_send(&v_value,1,0xd3,u2rev[6]);
 								  krvstate=chekhd;
@@ -394,14 +397,14 @@ uint8_t BT_recvdatadec(uint8_t *u2rev)
 												      BT_send(&v_value,1,0xd3,u2rev[6]);
 													    fmrvpkg_cnt++;							                
                             	fmcalpkgsz+=tmpwsz;
-                               debug_printf("\r\ncnt=%d,rvpksz=%d,fmsz=%d",fmrvpkg_cnt,fmcalpkgsz,fmpkgsz);
+                               //info_printf("\r\ncnt=%d,rvpksz=%d,fmsz=%d",fmrvpkg_cnt,fmcalpkgsz,fmpkgsz);
 															if(fmcalpkgsz==fmpkgsz){
 																    timer4_stop();
 		                                timer4_ov_interrupt_dis();
 		                                t2_tick_1s=0;
 																    cmdflg=0;
 																uint32_t ERdlflsadr=0;
-																    if(devtyp==PCF7945||devtyp==PCF7953||devtyp==PCF7952){
+																    if(devtyp==PCF7945||devtyp==PCF7953||devtyp==PCF7952||devtyp==PCF7941||devtyp==PCF7922){
 																			ERdlflsadr=BIN_EEFLSBR_START_ADDR+1028;
 																		}/*else if(devtyp==PCF7952){
 																			ERdlflsadr=BIN_EEFLSBR_START_ADDR+516;
@@ -409,7 +412,7 @@ uint8_t BT_recvdatadec(uint8_t *u2rev)
 																			ERdlflsadr=fmcalpkgsz;
 																		}
 																			
-																		 if(fm_burd(devcd,devtyp,/*fmcalpkgsz,*/ERdlflsadr,BIN_EEFLSBR_START_ADDR)
+																		 if(fm_burd(devcd,devtyp,ERdlflsadr,BIN_EEFLSBR_START_ADDR)
 															            ){
                                        v_value=0xe5;
 												              BT_send(&v_value,1,0xd3,u2rev[6]);																			 

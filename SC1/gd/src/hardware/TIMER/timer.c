@@ -108,7 +108,7 @@ void  timer4_start(void)
 {
 	t2_tick_16ms = 0;
 	t2_tick_1s = 0;
-	TCNT_V=0;
+	TCNT4_V=0;
 	timer_flag_clear(TIMER4,TIMER_FLAG_UP); 
 	nvic_irq_enable(TIMER4_IRQn,9U, 2U);
 	timer_interrupt_enable(TIMER4,TIMER_INT_UP);

@@ -25,6 +25,7 @@ void sleep_mag(void);
 void fls_infs(void);
 void SLEEP_task(void *pvParameters);
 void POWER_M_task(void *pvParameters);
+void entsl_clsop(void);
 
 #endif
 
