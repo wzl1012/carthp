@@ -230,7 +230,7 @@ uint8_t BT_recvdatadec(uint8_t *u2rev)
 							 case chekhd:{
 						   if(BYTASSBL(&u2rev[7],4)==BINCD){
 								  devtyp=NUNDEV;
-								if((u2rev[11]!=0x31&&u2rev[11]!=0x32)||(u2rev[12]!=0x51&&u2rev[12]!=0x52&&u2rev[12]!=0x53&&
+								if((u2rev[11]!=0x31&&u2rev[11]!=0x32)||(u2rev[12]!=0x51&&/*u2rev[12]!=0x52&&*/u2rev[12]!=0x53&&
 									  u2rev[12]!=0x54&&u2rev[12]!=0x55&&u2rev[12]!=0x20)){
 										 return FALSE;
 									}else{

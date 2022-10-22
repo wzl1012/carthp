@@ -78,7 +78,7 @@ __Vectors           DCD     __initial_sp                      ; Top of Stack
                     DCD     0                                 ; Reserved
                     DCD     0                                 ; Reserved
                     DCD     0                                 ; Reserved
-                    DCD     0x00000000                                 ; Reserved
+                    DCD     0x00000200                                 ; Reserved
                     DCD     SVC_Handler                       ; SVCall Handler
                     DCD     DebugMon_Handler                  ; Debug Monitor Handler
                     DCD     0                                 ; Reserved
